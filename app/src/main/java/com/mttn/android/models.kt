@@ -8,3 +8,11 @@ class Posts: Serializable {
     var title: String? = null
 
 }
+
+class Alerts: Serializable {
+    var Date: String? = null
+    var Body: String? = null
+    var Head: String? = null
+    var Url: String? = null
+
+}
