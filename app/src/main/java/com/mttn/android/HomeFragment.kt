@@ -23,14 +23,14 @@ class HomeFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
-    private lateinit var viewManager: RecyclerView.LayoutManager
     var postsArray: ArrayList<Posts> = ArrayList()
+    var page = 1
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_home, container, false)
-        viewManager = LinearLayoutManager(context)
+        val viewManager = LinearLayoutManager(context)
         viewAdapter = WordpressAdapter(postsArray, context)
 
         recyclerView = rootView.findViewById<RecyclerView>(R.id.wp_recycler_view).apply {
@@ -39,7 +39,43 @@ class HomeFragment : Fragment() {
             adapter = viewAdapter
 
         }
-        getWordpressData()
+
+        getWordpressData(1)
+
+        var previousTotal = 0
+        var loading = true
+        val visibleThreshold = 10
+        var firstVisibleItem: Int
+        var visibleItemCount: Int
+        var totalItemCount: Int
+        var page = 1
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                visibleItemCount = recyclerView!!.getChildCount()
+                firstVisibleItem = viewManager.findFirstVisibleItemPosition()
+                totalItemCount = viewManager.getItemCount()
+
+                if (loading) {
+                    if (totalItemCount > previousTotal) {
+                        loading = false
+                        previousTotal = totalItemCount
+                    }
+                }
+                if (!loading && totalItemCount - visibleItemCount <= firstVisibleItem + visibleThreshold) {
+                    // End has been reached
+
+                    // Do something
+                    page += 1
+                    getWordpressData(page)
+
+                    loading = true
+                }
+            }
+        })
         return rootView
     }
 
@@ -48,16 +84,16 @@ class HomeFragment : Fragment() {
         fun newInstance(): HomeFragment = HomeFragment()
     }
 
-    private fun getWordpressData() {
+    private fun getWordpressData(page:Int) {
         val cache = DiskBasedCache(context?.cacheDir, 1024 * 1024)
         val network = BasicNetwork(HurlStack())
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://manipalthetalk.org/wp-json/wp/v2/posts"
+        val url = "http://manipalthetalk.org/wp-json/wp/v2/posts" + "?page="+page
+        System.out.println(url)
         val jsonArrayRequest = JsonArrayRequest(Request.Method.GET, url, null,
                 Response.Listener { response ->
-                    System.out.println(response)
                     for (i in 0..(response.length() - 1)) {
                         val post = response.getJSONObject(i)
                         val postObj = Posts()
