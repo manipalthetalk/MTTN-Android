@@ -26,6 +26,12 @@ class MainActivity : AppCompatActivity() {
                 openFragment(alertFragment)
                 return@OnNavigationItemSelectedListener true
             }
+            R.id.navigation_directory -> {
+                val directoryFragment = DirectoryFragment.newInstance()
+                openFragment(directoryFragment)
+                return@OnNavigationItemSelectedListener true
+            }
+
         }
         false
     }

@@ -16,3 +16,13 @@ class Alerts: Serializable {
     var Url: String? = null
 
 }
+
+class PhoneNumber: Serializable{
+    var contact_name: String? = null
+    var phone_number: String? = null
+}
+
+class Directory: Serializable {
+    var category: String? = null
+    var contacts: ArrayList<PhoneNumber> = ArrayList()
+}
